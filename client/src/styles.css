@@ -1,0 +1,43 @@
+body{
+    margin: 0;
+}
+
+.link{
+    text-decoration: none;
+    color: inherit;
+}
+.link2{
+    text-decoration: none;
+    color: blue;
+}
+.nav-logo{
+    height: 40px;
+    width: 40px;
+    position: relative;
+    /* top:-7px; */
+}
+
+.cp{
+    cursor: pointer;
+}
+
+.container{
+    margin: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper{
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.card-logo{
+    height: 100px;
+    width: 100px;
+}

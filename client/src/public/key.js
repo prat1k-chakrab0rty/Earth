@@ -1,2 +1,2 @@
-const API_URL="http://localhost:8800";
+const API_URL="https://earthapi.onrender.com";
 export default API_URL;

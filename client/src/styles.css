@@ -1,34 +1,36 @@
-body{
+body {
     margin: 0;
 }
 
-.link{
+.link {
     text-decoration: none;
     color: inherit;
 }
-.link2{
+
+.link2 {
     text-decoration: none;
     color: blue;
 }
-.nav-logo{
+
+.nav-logo {
     height: 40px;
     width: 40px;
     position: relative;
     /* top:-7px; */
 }
 
-.cp{
+.cp {
     cursor: pointer;
 }
 
-.container{
+.container {
     margin: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.wrapper{
+.wrapper {
     text-align: center;
     display: flex;
     align-items: center;
@@ -37,7 +39,93 @@ body{
     gap: 30px;
 }
 
-.card-logo{
+.card-logo {
     height: 100px;
     width: 100px;
+}
+
+
+/* chat component */
+
+.chat {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    /* position: relative; */
+}
+
+.chat-wrapper {
+    padding: 10px;
+    display: flex;
+    gap: 20px;
+    overflow-y: auto;
+    height: 90vh;
+    flex-direction: column;
+    background-color: gainsboro;
+    position: relative;
+}
+
+.message-box {
+    width: 75vw;
+    height: 100vh;
+}
+
+.message {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.me {
+    flex-direction: row-reverse;
+}
+
+.text {
+    max-width: 80%;
+    word-wrap: break-word;
+    word-break: break-word;
+    font-family: 'roboto', 'sans-serif';
+    padding: 12px;
+    background-color: white;
+    border-radius: 8px;
+}
+
+.textarea{
+    width: 100%;
+    display: flex;
+}
+
+.textarea input {
+    outline: none;
+    border: none;
+    border-radius: 8px;
+    font-size: large;
+    padding: 0 12px;
+    flex: 1;
+}
+
+.textarea button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 12px;
+    background-color: white;
+    margin-left: 12px;
+    cursor: pointer;
+    padding: 6px;
+}
+
+.textarea button:hover {
+    background-color: black;
+    color: gainsboro;
+}
+
+.message-box h3{
+    text-align: center;
+    margin-top: 10vh;
+    font-size: xx-large;
+    font-family: monospace,'sans-serif';
+    color: #9c27b0;
 }

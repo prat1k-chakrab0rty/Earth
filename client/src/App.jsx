@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import "./styles.css";
 import Home from "./pages/Home";
+import Chat from "./pages/Chat";
 
 function App() {
   const router = createBrowserRouter([
@@ -24,6 +25,10 @@ function App() {
     {
       path: "/register",
       element: <Register />,
+    },
+    {
+      path: "/chat",
+      element: <Chat />,
     },
   ]);
   return (

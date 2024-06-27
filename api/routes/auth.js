@@ -32,10 +32,12 @@ router.post("/login", (req, res, next) => {
                         data: {
                             id: user.id,
                             email,
-                            name: user.name
+                            name: user.name,
+                            date: user.date
                         }
                     };
-                    return res.cookie("accessToken", accessToken, { httpOnly: true, sameSite: 'strict' }).status(200).json(loginRes);
+                    // return res.cookie("accessToken", accessToken, { httpOnly: true, sameSite: 'strict' }).status(200).json(loginRes);
+                    return res.cookie("accessToken", accessToken, { httpOnly: true, sameSite: 'none',secure:true }).status(200).json(loginRes);
                 }
             }
         }
@@ -61,7 +63,7 @@ router.post("/register", (req, res, next) => {
             }
             else {
                 //no user with this email id
-                users.push({ id: users.length + 1, name, email, password });
+                users.push({ id: users.length + 1, name, email, password, date: new Date() });
                 return res.status(201).json({ message: "User created successfully!", data: null });
             }
         }
@@ -74,10 +76,16 @@ router.post("/register", (req, res, next) => {
 
 router.post("/logout", (req, res, next) => {
     try {
+        // res.clearCookie("accessToken", {
+        //     httpOnly: true,
+        //     sameSite: 'strict'
+        // });
         res.clearCookie("accessToken", {
             httpOnly: true,
-            sameSite: 'strict'
+            sameSite: 'none',
+            secure:true
         });
+
         res.status(200).json({ message: "User logged out successfully!", data: null });
     } catch (err) {
         next(error(500, err));

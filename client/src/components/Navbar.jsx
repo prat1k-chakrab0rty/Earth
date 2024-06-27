@@ -30,7 +30,7 @@ export default function ButtonAppBar() {
             <AppBar position="static" color='secondary'>
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        The Earth App
+                        <Link className='link cp' to='/'>The Earth App</Link>
                     </Typography>
                     <Tooltip title={userData?.name}>
                         <img className='nav-logo cp' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${userData?.email}`} alt="avatar" />

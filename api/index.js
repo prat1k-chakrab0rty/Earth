@@ -39,14 +39,30 @@ io.on('connection', (socket) => {
         connections.push({ uid: u.id, sid: socket.id });
     else
         connections[index].sid = socket.id;
+    io.emit('refresh', "hola");
+    socket.on('logout', (data) => {
+        io.emit('refresh', "hola");
+    });
+    socket.on('refreshBuddy', (data) => {
+        const connection = connections.find(connection => connection.uid == data.id);
+        if (connection)
+            io.to(connection.sid).emit('refresh', "hola");
+    });
     socket.on('outgoing_message', (data) => {
         const connection = connections.find(connection => connection.uid == data.id);
         if (connection)
             io.to(connection.sid).emit('incoming_message', data.message);
-        console.log('message: ' + data);
+        console.log('message: ' + data.message);
     });
     socket.on('disconnect', () => {
         console.log('user disconnected');
+        if (index != -1) {
+            connections.splice(index, 1);
+            const u = users.find(user => user.id == id);
+            if (u)
+                u.inchat = 0;
+            io.emit('refresh', "hola");
+        }
     });
 });
 

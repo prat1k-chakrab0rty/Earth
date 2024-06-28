@@ -15,12 +15,15 @@ export default function ButtonAppBar() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     var userData = useSelector((state) => state.user.userInfo);
+    var socket = useSelector((state) => state.socket.value);
+
     const handleLogout = (event) => {
         event.preventDefault();
+        socket?.emit("logout", { id: userData.id });
         dispatch(handleLogOut());
     }
     useEffect(() => {
-        if (userData == null) {
+        if (userData == null || userData.error) {
             navigate("/login");
         }
     }, [userData])

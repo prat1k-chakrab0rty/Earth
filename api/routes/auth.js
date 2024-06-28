@@ -1,9 +1,13 @@
 import express from "express";
 import error from "../error.js";
-import users from "../db.js";
+import users, { connections } from "../db.js";
 import jwt from "jsonwebtoken";
+import verifyToken from "../verifyToken.js";
 
 const router = express.Router();
+
+const expiryDate = new Date();
+expiryDate.setFullYear(expiryDate.getFullYear() + 10)
 
 router.post("/login", (req, res, next) => {
     const { email, password } = req.body;
@@ -32,12 +36,11 @@ router.post("/login", (req, res, next) => {
                         data: {
                             id: user.id,
                             email,
-                            name: user.name,
-                            date: user.date
+                            name: user.name
                         }
                     };
                     // return res.cookie("accessToken", accessToken, { httpOnly: true, sameSite: 'strict' }).status(200).json(loginRes);
-                    return res.cookie("accessToken", accessToken, { httpOnly: true, sameSite: 'none',secure:true }).status(200).json(loginRes);
+                    return res.cookie("accessToken", accessToken, { httpOnly: true, sameSite: 'none', secure: true, expires: expiryDate }).status(200).json(loginRes);
                 }
             }
         }
@@ -63,7 +66,7 @@ router.post("/register", (req, res, next) => {
             }
             else {
                 //no user with this email id
-                users.push({ id: users.length + 1, name, email, password, date: new Date() });
+                users.push({ id: users.length + 1, name, email, password, date: new Date(), inchat: 0 });
                 return res.status(201).json({ message: "User created successfully!", data: null });
             }
         }
@@ -74,20 +77,19 @@ router.post("/register", (req, res, next) => {
 });
 
 
-router.post("/logout", (req, res, next) => {
+router.post("/logout", verifyToken, (req, res, next) => {
     try {
-        // res.clearCookie("accessToken", {
-        //     httpOnly: true,
-        //     sameSite: 'strict'
-        // });
+        const indexToRemove = connections.findIndex(connection => req.id === connection.uid);
+        connections.splice(indexToRemove, 1);
         res.clearCookie("accessToken", {
             httpOnly: true,
             sameSite: 'none',
-            secure:true
+            secure: true,
+            expires: expiryDate
         });
-
         res.status(200).json({ message: "User logged out successfully!", data: null });
     } catch (err) {
+        console.log(err);
         next(error(500, err));
     }
 });

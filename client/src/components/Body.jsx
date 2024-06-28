@@ -4,12 +4,15 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea, Chip, Snackbar } from '@mui/material';
+import CircleIcon from '@mui/icons-material/Circle';
 import { useState } from 'react';
 import axios from 'axios';
 import ReactTimeAgo from 'react-time-ago';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { API_URL } from '../public/key';
+import { lightGreen } from '@mui/material/colors';
+import { clearUser } from '../redux/userSlice';
 
 export default function Body() {
     const vertical = 'top';
@@ -18,6 +21,8 @@ export default function Body() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     var userData = useSelector((state) => state.user.userInfo);
+    var socket = useSelector((state) => state.socket.value);
+    const dispatch=useDispatch();
     useEffect(() => {
         const getAllUsers = async () => {
             try {
@@ -27,12 +32,16 @@ export default function Body() {
                 });
                 setUsers(response.data.data);
             } catch (error) {
+                dispatch((clearUser()));
+                navigate("/login");
                 console.log(error);
             }
-
         }
-        getAllUsers();
-    }, [])
+        if (userData && socket)
+            getAllUsers();
+        socket?.on("refresh", getAllUsers);
+    }, [socket])
+
     const openSnackbar = () => {
         setOpen(true);
     }
@@ -47,7 +56,7 @@ export default function Body() {
             navigate(`/chat?uid=${uid}`);
         }
     }
-
+    console.log(users);
     return (
         <>
             <div className="container">
@@ -62,12 +71,14 @@ export default function Body() {
                                     alt="green iguana"
                                 /> */}
                                 <img className='card-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="logo" />
-                                <CardContent>
+                                <CardContent sx={{ mt: 0, pt: 0 }}>
+                                    <CircleIcon sx={{ color: (user.isActive?"#00FF40":'white') }} />
+                                    {user.inchat == userData?.id && < CircleIcon color='secondary' />}
                                     <Typography gutterBottom variant="h5" component="div">
                                         {user?.name}
                                     </Typography>
                                     <Typography gutterBottom variant="p" component="div" sx={{ fontSize: 15 }}>
-                                        Born <b><ReactTimeAgo date={user?.date} locale="en-US" />.</b>
+                                        Born <b><ReactTimeAgo date={new Date(user?.date)} locale="en-US" />.</b>
                                     </Typography>
                                     {/* <Typography variant="body2" color="text.secondary">
                                         Lizards are a widespread group of squamate reptiles, with over 6,000
@@ -82,7 +93,7 @@ export default function Body() {
                     anchorOrigin={{ vertical, horizontal }}
                     open={open}
                     autoHideDuration={3000}
-                    message={<Typography>hi {userData?.name.split(' ')[0]}! {userData?.id==2?"Pratik loves you a lot😘": "Earth likes you."}</Typography>}
+                    message={<Typography>hi {userData?.name.split(' ')[0]}! {userData?.id == 2 ? "Pratik loves you a lot😘" : "Earth likes you."}</Typography>}
                     onClose={handleClose}
                 />
             </div>

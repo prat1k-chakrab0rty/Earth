@@ -33,6 +33,11 @@ const userSlice = createSlice({
     name: 'user',
     initialState: userInitialState,
     reducers: {
+        clearUser(state){
+            state.error = null;
+            state.userInfo = null;
+            state.pending = null;
+        }
     },
     extraReducers: builder => {
         builder
@@ -65,5 +70,5 @@ const userSlice = createSlice({
             })
     }
 })
-
+export const {clearUser} = userSlice.actions
 export default userSlice.reducer

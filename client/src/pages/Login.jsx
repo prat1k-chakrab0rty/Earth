@@ -56,6 +56,11 @@ export default function SignIn() {
   const handleInput = (e) => {
     setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
+  const handleEnterKeyPress = (event) => {
+    if (event.key == "Enter") {
+      handleLogin(event);
+    }
+  }
   const handleLogin = (event) => {
     event.preventDefault();
     dispatch(fetchUser(user));
@@ -100,6 +105,7 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
+              onKeyUp={handleEnterKeyPress}
               name="password"
               label="Password"
               type="password"

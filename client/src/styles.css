@@ -12,6 +12,11 @@ body {
     color: blue;
 }
 
+.info-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
 .nav-logo {
     height: 40px;
     width: 40px;

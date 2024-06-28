@@ -17,7 +17,7 @@ const verifyToken = async (req, res, next) => {
         }
     }
     catch (err) {
-        next(error());
+        next(error(500,"Something went wrong!"));
     }
 }
 

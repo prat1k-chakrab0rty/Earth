@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import "./styles.css";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
+import Info from "./pages/Info";
 
 function App() {
   const router = createBrowserRouter([
@@ -29,6 +30,10 @@ function App() {
     {
       path: "/chat",
       element: <Chat />,
+    },
+    {
+      path: "/info",
+      element: <Info />,
     },
   ]);
   return (

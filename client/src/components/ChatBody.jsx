@@ -12,33 +12,34 @@ export default function ChatBody() {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const uid = queryParams.get('uid');
-    useEffect(() => {
-        // setMessages(Array(10).fill("hello"));
-        // setToMeMessages([false, true, false, true, false, true, false, true, false, true]);
-        setMessages([]);
-        setToMeMessages([]);
-    }, [location])
 
     const [user, setUser] = useState({});
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [toMeMessages, setToMeMessages] = useState([]);
-    const [skt, setSkt] = useState(null);
 
     var userData = useSelector((state) => state.user.userInfo);
+    var socket = useSelector((state) => state.socket.value);
+
+
     useEffect(() => {
-        const socket = io(SK_URL, {
-            query: {
-                id: userData.id
-            },
-            reconnection: false
-        });
-        setSkt(socket);
-        socket?.on("incoming_message", (message) => {
+        setMessages([]);
+        setToMeMessages([]);
+    }, [location])
+
+    useEffect(() => {
+        const handleIncomingMessage = (message) => {
             setMessages((prevMessages) => [...prevMessages, message]);
             setToMeMessages((prevMessages) => [...prevMessages, false]);
-        });
-    }, [location])
+        };
+
+        socket?.on("incoming_message", handleIncomingMessage);
+        
+        return () => {
+            socket?.off("incoming_message", handleIncomingMessage);
+        };
+    }, [socket]);
+
 
     useEffect(() => {
         const getUserById = async () => {
@@ -55,11 +56,10 @@ export default function ChatBody() {
         }
         getUserById();
     }, [uid])
-
     const handleSend = (e) => {
         e.preventDefault();
         if (message != "") {
-            skt?.emit("outgoing_message", { message, id: uid });
+            socket?.emit("outgoing_message", { message, id: uid });
             setMessages((prevMessages) => [...prevMessages, message]);
             setToMeMessages((prevMessages) => [...prevMessages, true]);
             setMessage("");

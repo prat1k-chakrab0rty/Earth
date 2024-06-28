@@ -6,10 +6,10 @@ import Typography from '@mui/material/Typography';
 import { CardActionArea, Chip, Snackbar } from '@mui/material';
 import { useState } from 'react';
 import axios from 'axios';
-import API_URL from '../public/key';
 import ReactTimeAgo from 'react-time-ago';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { API_URL } from '../public/key';
 
 export default function Body() {
     const vertical = 'top';

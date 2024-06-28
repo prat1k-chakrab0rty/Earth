@@ -9,7 +9,7 @@ import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import API_URL from '../public/key';
+import { API_URL } from '../public/key';
 
 export default function ChatHeader() {
     const location = useLocation();
@@ -17,6 +17,7 @@ export default function ChatHeader() {
     const uid = queryParams.get('uid');
     const [user, setUser] = useState({});
     useEffect(() => {
+        console.log(uid);
         const getUserById = async () => {
             try {
                 axios.defaults.withCredentials = true;
@@ -30,7 +31,7 @@ export default function ChatHeader() {
 
         }
         getUserById();
-    }, [])
+    }, [uid])
 
     return (
         <Box sx={{ flexGrow: 1 }}>

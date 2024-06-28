@@ -15,7 +15,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as LinkRRD, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import axios from 'axios';
-import API_URL from '../public/key';
+import { API_URL } from '../public/key';
 
 function Copyright(props) {
   return (

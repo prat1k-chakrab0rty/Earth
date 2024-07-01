@@ -79,8 +79,8 @@ router.post("/register", (req, res, next) => {
 
 router.post("/logout", verifyToken, (req, res, next) => {
     try {
-        const indexToRemove = connections.findIndex(connection => req.id === connection.uid);
-        connections.splice(indexToRemove, 1);
+        // const indexToRemove = connections.findIndex(connection => req.id === connection.uid);
+        // connections.splice(indexToRemove, 1);
         res.clearCookie("accessToken", {
             httpOnly: true,
             sameSite: 'none',

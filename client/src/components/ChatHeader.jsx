@@ -12,31 +12,14 @@ import { useEffect } from 'react';
 import { API_URL } from '../public/key';
 import { useSelector } from 'react-redux';
 
-export default function ChatHeader() {
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const uid = queryParams.get('uid');
-    const [user, setUser] = useState({});
+export default function ChatHeader({user}) {
+  
+
 
     const navigate = useNavigate();
     var userData = useSelector((state) => state.user.userInfo);
     var socket = useSelector((state) => state.socket.value);
 
-    useEffect(() => {
-        const getUserById = async () => {
-            try {
-                axios.defaults.withCredentials = true;
-                const response = await axios.get(API_URL + `/api/user/${uid}`, {
-                    withCredentials: true
-                });
-                setUser(response.data.data);
-            } catch (error) {
-                console.log(error);
-            }
-
-        }
-        getUserById();
-    }, [uid])
     const handleBackbtn = async (e) => {
         e.preventDefault();
         try {
@@ -44,7 +27,7 @@ export default function ChatHeader() {
             const response = await axios.put(API_URL + `/api/user/chat/${userData.id}`, { id: 0 }, {
                 withCredentials: true
             });
-            socket?.emit("refreshBuddy", { id: uid });
+            socket?.emit("refreshBuddy", { id: user.id });
             navigate("/");
         } catch (error) {
             console.log(error);

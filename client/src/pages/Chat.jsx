@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { API_URL } from '../public/key';
+import { useState } from 'react';
 
 function Chat() {
     var userData = useSelector((state) => state.user.userInfo);
@@ -13,6 +14,9 @@ function Chat() {
     const queryParams = new URLSearchParams(location.search);
     const uid = queryParams.get('uid');
     var socket = useSelector((state) => state.socket.value);
+
+    const [user, setUser] = useState({});
+
 
     useEffect(() => {
         const goToChatRoom = async () => {
@@ -25,14 +29,26 @@ function Chat() {
             } catch (error) {
                 console.log(error);
             }
+        }
+        const getUserById = async () => {
+            try {
+                axios.defaults.withCredentials = true;
+                const response = await axios.get(API_URL + `/api/user/${uid}`, {
+                    withCredentials: true
+                });
+                setUser(response.data.data);
+            } catch (error) {
+                console.log(error);
+            }
 
         }
+        getUserById();
         goToChatRoom();
     }, [uid])
     return (
         <>
-            <ChatHeader />
-            <ChatBody />
+            <ChatHeader user={user}/>
+            <ChatBody user={user}/>
         </>
     )
 }

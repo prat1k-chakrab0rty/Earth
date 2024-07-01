@@ -21,26 +21,41 @@ export default function Body() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     var userData = useSelector((state) => state.user.userInfo);
-    var socket = useSelector((state) => state.socket.value);
-    const dispatch=useDispatch();
+    var socket = useSelector((state) => (state.socket.value));
+    var pending = useSelector((state) => state.user.pending);
+
     useEffect(() => {
-        const getAllUsers = async () => {
+        const getAllUsers = async (uid) => {
             try {
-                axios.defaults.withCredentials = true;
-                const response = await axios.get(API_URL + '/api/user/all', {
-                    withCredentials: true
-                });
-                setUsers(response.data.data);
+                if (userData && socket && !pending && uid != userData.id) {
+                    axios.defaults.withCredentials = true;
+                    const response = await axios.get(API_URL + '/api/user/all', {
+                        withCredentials: true
+                    });
+                    response.data.data.map(user => {
+                        if (user.id == userData.id)
+                            user.isActive = true;
+                        return user;
+                    })
+                    setUsers(response.data.data);
+                }
             } catch (error) {
-                dispatch((clearUser()));
-                navigate("/login");
-                console.log(error);
+                // console.log(error);
             }
         }
-        if (userData && socket)
-            getAllUsers();
+        socket?.on("refreshAllExcept", getAllUsers);
         socket?.on("refresh", getAllUsers);
+        getAllUsers(0);
+        return () => {
+            socket?.off("refreshAllExcept");
+            socket?.off("refresh");
+        };
     }, [socket])
+    // useEffect(() => {
+    //     if (!userData){
+    //         navigate("/login");
+    //     }
+    // }, [userData])
 
     const openSnackbar = () => {
         setOpen(true);
@@ -56,7 +71,7 @@ export default function Body() {
             navigate(`/chat?uid=${uid}`);
         }
     }
-    console.log(users);
+    // console.log(users);
     return (
         <>
             <div className="container">
@@ -72,7 +87,7 @@ export default function Body() {
                                 /> */}
                                 <img className='card-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="logo" />
                                 <CardContent sx={{ mt: 0, pt: 0 }}>
-                                    <CircleIcon sx={{ color: (user.isActive?"#00FF40":'white') }} />
+                                    {user.inchat != userData?.id && <CircleIcon sx={{ color: (user.isActive ? "#00FF40" : 'white') }} />}
                                     {user.inchat == userData?.id && < CircleIcon color='secondary' />}
                                     <Typography gutterBottom variant="h5" component="div">
                                         {user?.name}

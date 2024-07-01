@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import { Server } from 'socket.io';
 import cors from "cors";
 import 'dotenv/config';
-import users, { connections } from "./db.js";
+import { socketHandler } from "./socket/handler.js";
 
 const app = express();
 
@@ -31,40 +31,8 @@ app.use(cors({
 app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
 
-io.on('connection', (socket) => {
-    const { id } = socket.handshake.query;
-    const u = users.find(user => user.id == id);
-    const index = connections.findIndex(connection => connection.uid == u.id);
-    if (index == -1)
-        connections.push({ uid: u.id, sid: socket.id });
-    else
-        connections[index].sid = socket.id;
-    io.emit('refresh', "hola");
-    socket.on('logout', (data) => {
-        io.emit('refresh', "hola");
-    });
-    socket.on('refreshBuddy', (data) => {
-        const connection = connections.find(connection => connection.uid == data.id);
-        if (connection)
-            io.to(connection.sid).emit('refresh', "hola");
-    });
-    socket.on('outgoing_message', (data) => {
-        const connection = connections.find(connection => connection.uid == data.id);
-        if (connection)
-            io.to(connection.sid).emit('incoming_message', data.message);
-        console.log('message: ' + data.message);
-    });
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-        if (index != -1) {
-            connections.splice(index, 1);
-            const u = users.find(user => user.id == id);
-            if (u)
-                u.inchat = 0;
-            io.emit('refresh', "hola");
-        }
-    });
-});
+socketHandler(io);
+
 
 //error handling middleware
 app.use((err, req, res, next) => {

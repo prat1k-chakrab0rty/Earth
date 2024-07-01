@@ -7,7 +7,8 @@ const router = express.Router();
 router.get("/all", verifyToken, (req, res, next) => {
     try {
         const usersRes = users.slice();
-        usersRes.map(user => (user.isActive = (connections.find(connection => connection.uid == user.id) ? true : false)));
+        console.log("users",connections);
+        usersRes.forEach(user => (user.isActive = (connections.find(connection => connection.uid == user.id) ? true : false)));
         res.status(200).json({ message: "Success", data: usersRes });
     } catch (err) {
         next(error(500, err));

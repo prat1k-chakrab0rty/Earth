@@ -1,19 +1,21 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Message from './Message';
 import SendIcon from '@mui/icons-material/Send';
 import { io } from "socket.io-client";
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import alert from '../public/message-alert.mp3';
 import { API_URL, SK_URL } from '../public/key';
 import axios from 'axios';
 
-export default function ChatBody() {
+export default function ChatBody({ user }) {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const uid = queryParams.get('uid');
 
-    const [user, setUser] = useState({});
+    const audioRef = useRef(null);
+
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [toMeMessages, setToMeMessages] = useState([]);
@@ -29,33 +31,22 @@ export default function ChatBody() {
 
     useEffect(() => {
         const handleIncomingMessage = (message) => {
+            audioRef.current.pause();
+            audioRef.current.currentTime=0;
             setMessages((prevMessages) => [...prevMessages, message]);
             setToMeMessages((prevMessages) => [...prevMessages, false]);
+            audioRef.current.play();
         };
 
         socket?.on("incoming_message", handleIncomingMessage);
-        
+
         return () => {
             socket?.off("incoming_message", handleIncomingMessage);
         };
     }, [socket]);
 
 
-    useEffect(() => {
-        const getUserById = async () => {
-            try {
-                axios.defaults.withCredentials = true;
-                const response = await axios.get(API_URL + `/api/user/${uid}`, {
-                    withCredentials: true
-                });
-                setUser(response.data.data);
-            } catch (error) {
-                console.log(error);
-            }
 
-        }
-        getUserById();
-    }, [uid])
     const handleSend = (e) => {
         e.preventDefault();
         if (message != "") {
@@ -78,6 +69,7 @@ export default function ChatBody() {
     }
     return (
         <div className="chat">
+            <audio ref={audioRef} src={alert} />
             <div className="chat-wrapper">
                 <div className={'message-box' + (messages.length == 0 ? '' : ' box-reverse')}>
                     {messages.length != 0 && messages.slice().reverse().map((message, i) => (

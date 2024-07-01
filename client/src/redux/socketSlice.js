@@ -10,7 +10,7 @@ const socketSlice = createSlice({
         setSocket(state, action) {
             state.value = action.payload
         },
-        clearSocket() {
+        clearSocket(state) {
             state.value = null
         }
     },

@@ -12,9 +12,12 @@ import { Link } from 'react-router-dom';
 const Home = () => {
     const dispatch = useDispatch();
     var userData = useSelector((state) => state.user.userInfo);
+    var socketState = useSelector((state) => state.socket.value);
+    let socket;
     useEffect(() => {
-        if (userData) {
-            const socket = io(SK_URL, {
+        // console.log(socket,socketState,userData);
+        if (!socket && !socketState && userData) {
+            socket = io(SK_URL, {
                 query: {
                     id: userData?.id
                 },

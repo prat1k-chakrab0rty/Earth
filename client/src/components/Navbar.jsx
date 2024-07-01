@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleLogOut } from '../redux/userSlice';
 import { useEffect } from 'react';
+import { clearSocket } from '../redux/socketSlice';
 
 
 export default function ButtonAppBar() {
@@ -20,13 +21,18 @@ export default function ButtonAppBar() {
     const handleLogout = (event) => {
         event.preventDefault();
         socket?.emit("logout", { id: userData.id });
+        socket?.disconnect();
+        dispatch(clearSocket());
+        // console.log(socket);
         dispatch(handleLogOut());
     }
     useEffect(() => {
-        if (userData == null || userData.error) {
+        // console.log(socket, userData);
+        if (!socket && !userData) {
+            // console.log("Going to login");
             navigate("/login");
         }
-    }, [userData])
+    }, [socket, userData]);
 
     return (
         <Box sx={{ flexGrow: 1 }}>

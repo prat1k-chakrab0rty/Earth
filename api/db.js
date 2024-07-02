@@ -5,7 +5,8 @@ const users = [
         email: "pratik@google.com",
         password: "123",
         date: new Date(2024, 3, 1),
-        inchat:0
+        inchat:0,
+        lastOnline: new Date()
     },
     {
         id: 2,
@@ -13,7 +14,8 @@ const users = [
         email: "vaishnavi@myntra.com",
         password: "123",
         date: new Date(2024, 4, 1),
-        inchat:0
+        inchat:0,
+        lastOnline: new Date()
     },
 ];
 

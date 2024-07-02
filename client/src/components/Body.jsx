@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -24,6 +24,7 @@ export default function Body() {
     var socket = useSelector((state) => (state.socket.value));
     var pending = useSelector((state) => state.user.pending);
 
+
     useEffect(() => {
         const getAllUsers = async (uid) => {
             try {
@@ -45,7 +46,7 @@ export default function Body() {
         }
         socket?.on("refreshAllExcept", getAllUsers);
         socket?.on("refresh", getAllUsers);
-        getAllUsers(0);
+        getAllUsers(-1);
         return () => {
             socket?.off("refreshAllExcept");
             socket?.off("refresh");
@@ -87,7 +88,16 @@ export default function Body() {
                                 /> */}
                                 <img className='card-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="logo" />
                                 <CardContent sx={{ mt: 0, pt: 0 }}>
-                                    {user.inchat != userData?.id && <CircleIcon sx={{ color: (user.isActive ? "#00FF40" : 'white') }} />}
+                                    {user.inchat != userData?.id &&
+                                        (user.isActive
+                                            ?
+                                            <CircleIcon sx={{ color: "#00FF40" }} />
+                                            :
+                                            <Typography sx={{ height: '17px', mb: '5px', pt: '5px' }} gutterBottom variant="p" component="div">
+                                                Online <b><ReactTimeAgo date={new Date(user?.lastOnline)} locale="en-US" />.</b>
+                                            </Typography>
+                                        )
+                                    }
                                     {user.inchat == userData?.id && < CircleIcon color='secondary' />}
                                     <Typography gutterBottom variant="h5" component="div">
                                         {user?.name}

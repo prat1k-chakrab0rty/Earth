@@ -3,12 +3,14 @@ import Navbar from '../components/Navbar'
 import { Container, Typography } from '@mui/material'
 import CircleIcon from '@mui/icons-material/Circle';
 import { Link } from 'react-router-dom';
+import SocketInitializer from '../components/SocketInitializer';
 
 
 
 export default function Info() {
     return (
         <>
+            <SocketInitializer />
             <Navbar />
             <Container>
                 <Typography sx={{ mt: 4, textAlign: 'center' }} variant='h4'>Realtime online and inchat status feature added.</Typography>

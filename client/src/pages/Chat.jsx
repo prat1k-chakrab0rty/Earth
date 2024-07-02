@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { API_URL } from '../public/key';
 import { useState } from 'react';
+import SocketInitializer from '../components/SocketInitializer';
 
 function Chat() {
     var userData = useSelector((state) => state.user.userInfo);
@@ -42,11 +43,13 @@ function Chat() {
             }
 
         }
-        getUserById();
         goToChatRoom();
+        socket?.on("refresh", getUserById);
+        getUserById();
     }, [uid])
     return (
         <>
+            <SocketInitializer />
             <ChatHeader user={user}/>
             <ChatBody user={user}/>
         </>

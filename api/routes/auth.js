@@ -36,7 +36,7 @@ router.post("/login", (req, res, next) => {
                         data: {
                             id: user.id,
                             email,
-                            name: user.name
+                            name: user.name,
                         }
                     };
                     // return res.cookie("accessToken", accessToken, { httpOnly: true, sameSite: 'strict' }).status(200).json(loginRes);
@@ -66,7 +66,7 @@ router.post("/register", (req, res, next) => {
             }
             else {
                 //no user with this email id
-                users.push({ id: users.length + 1, name, email, password, date: new Date(), inchat: 0 });
+                users.push({ id: users.length + 1, name, email, password, date: new Date(), inchat: 0,lastOnline: new Date() });
                 return res.status(201).json({ message: "User created successfully!", data: null });
             }
         }

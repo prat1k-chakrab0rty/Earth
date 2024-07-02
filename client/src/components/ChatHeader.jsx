@@ -11,9 +11,11 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { API_URL } from '../public/key';
 import { useSelector } from 'react-redux';
+import CircleIcon from '@mui/icons-material/Circle';
 
-export default function ChatHeader({user}) {
-  
+
+export default function ChatHeader({ user }) {
+
 
 
     const navigate = useNavigate();
@@ -24,10 +26,11 @@ export default function ChatHeader({user}) {
         e.preventDefault();
         try {
             axios.defaults.withCredentials = true;
-            const response = await axios.put(API_URL + `/api/user/chat/${userData.id}`, { id: 0 }, {
+            const response = await axios.put(API_URL + `/api/user/chat/${userData.id}`, { id: "0" }, {
                 withCredentials: true
             });
             socket?.emit("refreshBuddy", { id: user.id });
+            // socket?.emit("refreshBuddy", { id: userData.id });
             navigate("/");
         } catch (error) {
             console.log(error);
@@ -40,9 +43,14 @@ export default function ChatHeader({user}) {
                     <Link className='link' onClick={handleBackbtn}>
                         <ArrowBackIcon className='cp' sx={{ mr: 2 }} />
                     </Link>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        {user.name}
-                    </Typography>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Typography sx={{ lineHeight: 1.2 }} variant="h6" component="div">
+                            {user.name}
+                        </Typography>
+                        {user.inchat == userData.id && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>In your chat</Typography>}
+                        {user.isActive && user.inchat != userData.id && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Available</Typography>}
+                        {!user.isActive && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Offline</Typography>}
+                    </Box>
                     <Link className='link' to={`/chat?uid=${user.id}`}>
                         <RefreshIcon fontSize="large" className='cp' />
                     </Link>

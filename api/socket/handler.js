@@ -33,10 +33,27 @@ export const socketHandler = (io) => {
           });
           io.to("inMyChat").emit('refreshChat');
 
+        //Notify the client that the user has either entered your chat or came online or left your chat
         socket.on('refreshBuddy', (data) => {
             const connection = connections.find(connection => connection.uid == data.id);
             if (connection) {
                 io.to(connection.sid).emit('refresh', 0);
+            }
+        });
+
+        //Notify user that buddy is typing
+        socket.on('isTyping', (data) => {
+            const connection = connections.find(connection => connection.uid == data.id);
+            if (connection) {
+                io.to(connection.sid).emit('showSkeleton');
+            }
+        });
+
+        //Notify user that buddy left typing
+        socket.on('leftTyping', (data) => {
+            const connection = connections.find(connection => connection.uid == data.id);
+            if (connection) {
+                io.to(connection.sid).emit('hideSkeleton');
             }
         });
 

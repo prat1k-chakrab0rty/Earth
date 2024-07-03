@@ -22,6 +22,7 @@ router.get("/:id", verifyToken, (req, res, next) => {
     try {
         const id = req.params.id;
         const user = users.find(user => user.id == id);
+        user.isActive = (connections.find(connection => connection.uid == user.id) ? true : false);
         const { password, ...restOfUser } = user;
         res.status(200).json({ message: "Success", data: restOfUser });
     } catch (err) {

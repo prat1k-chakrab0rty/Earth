@@ -174,3 +174,19 @@ body {
     font-family: monospace,'sans-serif';
     color: #9c27b0;
 }
+
+.bounce {
+    animation: bounce 2s ease infinite;
+    text-align: center;
+    font-size: 50px;
+    margin: 0;
+  }
+  @keyframes bounce {
+      70% { transform:translateY(0%); }
+      80% { transform:translateY(-40%); }
+      90% { transform:translateY(0%); }
+      95% { transform:translateY(-15%); }
+      97% { transform:translateY(0%); }
+      99% { transform:translateY(-3%); }
+      100% { transform:translateY(0); }
+  }

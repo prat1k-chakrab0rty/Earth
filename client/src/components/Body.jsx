@@ -12,17 +12,22 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { API_URL } from '../public/key';
 import { lightGreen } from '@mui/material/colors';
-import { clearUser } from '../redux/userSlice';
+import { clearUser, handleLogOut } from '../redux/userSlice';
+import alert from '../public/wanna-chat.mp3';
+import { clearSocket } from '../redux/socketSlice';
 
 export default function Body() {
-    const vertical = 'top';
-    const horizontal = 'center';
     const [users, setUsers] = useState([]);
     const [open, setOpen] = useState(false);
+    const [chatAlert, setChatAlert] = useState(false);
+    const [chatAlertUserData, setChatAlertUserData] = useState({});
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     var userData = useSelector((state) => state.user.userInfo);
     var socket = useSelector((state) => (state.socket.value));
     var pending = useSelector((state) => state.user.pending);
+
+    const audioRef = useRef(null);
 
 
     useEffect(() => {
@@ -42,14 +47,28 @@ export default function Body() {
                 }
             } catch (error) {
                 // console.log(error);
+                socket?.emit("logout", { id: userData.id });
+                socket?.disconnect();
+                dispatch(clearSocket());
+                // console.log(socket);
+                dispatch(handleLogOut());
             }
+        }
+        const getBuddyUserData = (user) => {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            setChatAlertUserData(user);
+            setChatAlert(true);
+            audioRef?.current?.play();
         }
         socket?.on("refreshAllExcept", getAllUsers);
         socket?.on("refresh", getAllUsers);
+        socket?.on("enterMyChatBuddy", getBuddyUserData);
         getAllUsers(-1);
         return () => {
             socket?.off("refreshAllExcept");
             socket?.off("refresh");
+            socket?.off("enterMyChatBuddy");
         };
     }, [socket])
     // useEffect(() => {
@@ -64,6 +83,9 @@ export default function Body() {
     const handleClose = (event, reason) => {
         setOpen(false);
     };
+    const handleCloseChatAlert = (event, reason) => {
+        setChatAlert(false);
+    };
     const openChatPage = (uid) => {
         if (userData?.id === uid) {
             openSnackbar();
@@ -72,9 +94,15 @@ export default function Body() {
             navigate(`/chat?uid=${uid}`);
         }
     }
+    const openUsersChat = () => {
+        setChatAlert(false);
+        navigate(`/chat?uid=${chatAlertUserData.id}`);
+
+    }
     // console.log(users);
     return (
         <>
+            <audio ref={audioRef} src={alert}></audio>
             <div className="container">
                 <div className="wrapper">
                     {users.map(user => (
@@ -115,11 +143,24 @@ export default function Body() {
                     ))}
                 </div>
                 <Snackbar
-                    anchorOrigin={{ vertical, horizontal }}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     open={open}
                     autoHideDuration={3000}
                     message={<Typography>hi {userData?.name.split(' ')[0]}! {userData?.id == 2 ? "Pratik loves you a lot😘" : "Earth likes you."}</Typography>}
                     onClose={handleClose}
+                />
+                <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    open={chatAlert}
+                    onClick={openUsersChat}
+                    message={<Typography>{chatAlertUserData.name} wants to chat with you!</Typography>}
+                    onClose={handleCloseChatAlert}
+                    ContentProps={{
+                        sx: {
+                            backgroundColor: '#9c27b0',
+                            cursor: 'pointer'
+                        },
+                    }}
                 />
             </div>
         </>

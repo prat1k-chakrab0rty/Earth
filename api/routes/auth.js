@@ -66,7 +66,7 @@ router.post("/register", (req, res, next) => {
             }
             else {
                 //no user with this email id
-                users.push({ id: users.length + 1, name, email, password, date: new Date(), inchat: 0,lastOnline: new Date() });
+                users.push({ id: users.length + 1, name, email, password, date: new Date(), inchat: 0, lastOnline: new Date() });
                 return res.status(201).json({ message: "User created successfully!", data: null });
             }
         }
@@ -77,10 +77,8 @@ router.post("/register", (req, res, next) => {
 });
 
 
-router.post("/logout", verifyToken, (req, res, next) => {
+router.post("/logout", (req, res, next) => {
     try {
-        // const indexToRemove = connections.findIndex(connection => req.id === connection.uid);
-        // connections.splice(indexToRemove, 1);
         res.clearCookie("accessToken", {
             httpOnly: true,
             sameSite: 'none',

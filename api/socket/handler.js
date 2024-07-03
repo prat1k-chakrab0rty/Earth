@@ -24,10 +24,27 @@ export const socketHandler = (io) => {
         // Notify all clients to refresh except the connected user
         io.emit('refreshAllExcept', id);
 
+        //Notify clients who are in the users chat page
+        const inMyChatUsers = users.filter(user => user.inchat == id);
+        const inMyChatConnections = connections.filter(connection => inMyChatUsers.some(inmychatuser => inmychatuser.id == connection.uid));
+        console.log(inMyChatConnections);
+        inMyChatConnections.forEach(inMyChatConnection => {
+            io.sockets.sockets.get(inMyChatConnection.sid).join("inMyChat");
+          });
+          io.to("inMyChat").emit('refreshChat');
+
         socket.on('refreshBuddy', (data) => {
             const connection = connections.find(connection => connection.uid == data.id);
             if (connection) {
                 io.to(connection.sid).emit('refresh', 0);
+            }
+        });
+
+        //Notify a client having the id associated with it that the triggering client wants to chat with you
+        socket.on('askUserToEnterChat', (data) => {
+            const connection = connections.find(connection => connection.uid == data.id);
+            if (connection) {
+                io.to(connection.sid).emit('enterMyChatBuddy', user);
             }
         });
 

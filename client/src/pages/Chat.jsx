@@ -23,7 +23,7 @@ function Chat() {
         const goToChatRoom = async () => {
             try {
                 axios.defaults.withCredentials = true;
-                const response = await axios.put(API_URL + `/api/user/chat/${userData.id}`,{id:uid}, {
+                const response = await axios.put(API_URL + `/api/user/chat/${userData.id}`, { id: uid }, {
                     withCredentials: true
                 });
                 socket?.emit("refreshBuddy", { id: uid });
@@ -41,17 +41,21 @@ function Chat() {
             } catch (error) {
                 console.log(error);
             }
-
         }
         goToChatRoom();
         socket?.on("refresh", getUserById);
+        socket?.on("refreshChat", getUserById);
         getUserById();
+        return () => {
+            socket?.off("refresh");
+            socket?.off("refreshChat");
+        };
     }, [uid])
     return (
         <>
             <SocketInitializer />
-            <ChatHeader user={user}/>
-            <ChatBody user={user}/>
+            <ChatHeader user={user} />
+            <ChatBody user={user} />
         </>
     )
 }

@@ -73,6 +73,19 @@ export const socketHandler = (io) => {
             console.log('message:', data.message);
         });
 
+        //For video and audio call
+        socket.on('offer', (data) => {
+            socket.broadcast.emit('offer', data);
+        });
+    
+        socket.on('answer', (data) => {
+            socket.broadcast.emit('answer', data);
+        });
+    
+        socket.on('candidate', (data) => {
+            socket.broadcast.emit('candidate', data);
+        });
+
         socket.on('disconnect', () => {
             console.log('user disconnected', connectionIndex);
             if (connectionIndex !== -1) {

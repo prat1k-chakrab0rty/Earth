@@ -12,6 +12,8 @@ import { useEffect } from 'react';
 import { API_URL } from '../public/key';
 import { useSelector } from 'react-redux';
 import CircleIcon from '@mui/icons-material/Circle';
+import VideoCallIcon from '@mui/icons-material/VideoCall';
+import CallIcon from '@mui/icons-material/Call';
 
 
 export default function ChatHeader({ user }) {
@@ -51,6 +53,12 @@ export default function ChatHeader({ user }) {
                         {user.isActive && user.inchat != userData.id && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Available</Typography>}
                         {!user.isActive && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Offline</Typography>}
                     </Box>
+                    <Link className='link' to={`/chat?uid=${user.id}`}>
+                        <VideoCallIcon sx={{mr:2}} fontSize="large" className='cp' />
+                    </Link>
+                    <Link className='link' to={`/chat?uid=${user.id}`}>
+                        <CallIcon sx={{mr:2}} fontSize="large" className='cp' />
+                    </Link>
                     <Link className='link' to={`/chat?uid=${user.id}`}>
                         <RefreshIcon fontSize="large" className='cp' />
                     </Link>

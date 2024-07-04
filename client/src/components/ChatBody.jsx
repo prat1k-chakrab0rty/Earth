@@ -8,11 +8,17 @@ import { useEffect } from 'react';
 import alert from '../public/message-alert.mp3';
 import { API_URL, SK_URL } from '../public/key';
 import axios from 'axios';
-import { Avatar, Button, Chip, Skeleton } from '@mui/material';
+import { Alert, Avatar, Button, Chip, Skeleton, Snackbar, Tooltip, Typography } from '@mui/material';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import DoneIcon from '@mui/icons-material/Done';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { getURLFromFirebase, uploadToFirebase } from '../public/firebaseUtil';
+
 
 export default function ChatBody({ user }) {
     const location = useLocation();
@@ -21,6 +27,8 @@ export default function ChatBody({ user }) {
 
     const audioRef = useRef(null);
     const typingTimeoutRef = useRef(null);
+    const inputRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
@@ -28,6 +36,8 @@ export default function ChatBody({ user }) {
     const [isComeToChatRequest, setIsComeToChatRequest] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [buddyIsTyping, setBuddyIsTyping] = useState(false);
+    const [showEmojiMart, setShowEmojiMart] = useState(false);
+    const [showUnsupportedFileAlert, setShowUnsupportedFileAlert] = useState(false);
 
     var userData = useSelector((state) => state.user.userInfo);
     var socket = useSelector((state) => state.socket.value);
@@ -74,6 +84,7 @@ export default function ChatBody({ user }) {
 
     const handleSend = (e) => {
         e.preventDefault();
+        setShowEmojiMart(false);
         if (message != "") {
             socket?.emit("outgoing_message", { message, id: uid });
             setMessages((prevMessages) => [...prevMessages, message]);
@@ -89,6 +100,34 @@ export default function ChatBody({ user }) {
             handleSend(e);
         }
     }
+
+    const handleFileInput = (e) => {
+        fileInputRef.current.click();
+    }
+
+    const handleFile = async (e) => {
+        if (e.target.files.length > 0) {
+            const file = e.target.files[0];
+            if (file.type.split("/")[0] == "image") {
+                await uploadToFirebase(file.type, file);
+                const imgURL = await getURLFromFirebase(file.name);
+                if (imgURL != "") {
+                    socket?.emit("outgoing_message", { message: imgURL, id: uid });
+                    setMessages((prevMessages) => [...prevMessages, imgURL]);
+                    setToMeMessages((prevMessages) => [...prevMessages, true]);
+                }
+            }
+            else {
+                setShowUnsupportedFileAlert(true);
+            }
+        }
+    }
+
+    const handleAlertClose = () => {
+        setShowUnsupportedFileAlert(false);
+    }
+
+
     const handleMessage = (e) => {
         setMessage(e.target.value);
         setIsTyping(true);
@@ -107,9 +146,26 @@ export default function ChatBody({ user }) {
         setIsComeToChatRequest(true);
     }
 
+    const addEmojiToInput = (emoji) => {
+        setMessage(message + emoji.native);
+        inputRef.current.focus();
+    };
+
+    const handleEmojiPicker = (e) => {
+        setShowEmojiMart(!showEmojiMart);
+    };
+
     return (
         <div className="chat">
             <audio ref={audioRef} src={alert} />
+            <Snackbar
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                open={showUnsupportedFileAlert}
+                autoHideDuration={3000}
+                onClose={handleAlertClose}
+            >
+                <Alert severity="error">Unsupported file type, you can only send images.</Alert>
+            </Snackbar>
             <div className="chat-wrapper">
                 <div className={'message-box' + (messages.length == 0 && !buddyIsTyping ? '' : ' box-reverse')}>
                     {buddyIsTyping && <div className='skltn'>
@@ -160,7 +216,17 @@ export default function ChatBody({ user }) {
                     )}
                 </div>
                 <div className="textarea">
-                    <input autoFocus spellCheck='false' onChange={handleMessage} onKeyUp={onPressEnter} value={message} className='chat-input-box' type='text' />
+                    <span>
+                        <Tooltip arrow title="Send emojis">
+                            <SentimentSatisfiedAltIcon color='secondary' onClick={handleEmojiPicker} fontSize='large' sx={{ cursor: 'pointer' }} />
+                        </Tooltip>
+                        <Tooltip arrow title="Upload image">
+                            <AttachFileIcon onClick={handleFileInput} color='secondary' fontSize='large' sx={{ cursor: 'pointer' }} />
+                        </Tooltip>
+                    </span>
+                    <input onChange={handleFile} ref={fileInputRef} hidden type='file' />
+                    <input ref={inputRef} autoFocus spellCheck='false' onChange={handleMessage} onKeyUp={onPressEnter} value={message} className='chat-input-box' type='text' />
+                    {showEmojiMart && <Picker dynamicWidth="true" autoFocus="false" emojiButtonSize="50" emojiSize="40" searchPosition="none" previewPosition="none" style={{ position: 'absolute', zIndex: 1000 }} data={data} onEmojiSelect={addEmojiToInput} />}
                     <button onClick={onClickSend} type='button'><SendIcon /></button>
                 </div>
             </div>

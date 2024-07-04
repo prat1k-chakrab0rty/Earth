@@ -140,6 +140,18 @@ body {
     margin: 0 10px;
     display: flex;
     gap: 12px;
+    position: relative;
+    align-items: center;
+}
+
+.textarea div{
+    position: absolute;
+    bottom: 45px;
+    width: 100%;
+}
+
+em-emoji-picker{
+    width: 100%;
 }
 
 .textarea input {
@@ -149,6 +161,7 @@ body {
     font-size: large;
     padding: 0 12px;
     flex: 1;
+    height: 100%;
 }
 
 .textarea button {

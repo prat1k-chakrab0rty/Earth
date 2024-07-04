@@ -10,6 +10,7 @@ import "./styles.css";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Info from "./pages/Info";
+import Call from "./pages/Call";
 
 function App() {
   const router = createBrowserRouter([
@@ -30,6 +31,10 @@ function App() {
     {
       path: "/chat",
       element: <Chat />,
+    },
+    {
+      path: "/call",
+      element: <Call />,
     },
     {
       path: "/info",

@@ -18,8 +18,6 @@ import CallIcon from '@mui/icons-material/Call';
 
 export default function ChatHeader({ user }) {
 
-
-
     const navigate = useNavigate();
     var userData = useSelector((state) => state.user.userInfo);
     var socket = useSelector((state) => state.socket.value);
@@ -38,6 +36,7 @@ export default function ChatHeader({ user }) {
             console.log(error);
         }
     }
+
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" color='secondary'>
@@ -53,11 +52,11 @@ export default function ChatHeader({ user }) {
                         {user.isActive && user.inchat != userData.id && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Available</Typography>}
                         {!user.isActive && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Offline</Typography>}
                     </Box>
-                    <Link className='link' to={`/chat?uid=${user.id}`}>
-                        <VideoCallIcon sx={{mr:2}} fontSize="large" className='cp' />
+                    <Link className='link' to={`/call?uid=${user.id}&req=true`}>
+                        <VideoCallIcon sx={{ mr: 2 }} fontSize="large" className='cp' />
                     </Link>
-                    <Link className='link' to={`/chat?uid=${user.id}`}>
-                        <CallIcon sx={{mr:2}} fontSize="large" className='cp' />
+                    <Link className='link' to={`/call?uid=${user.id}`}>
+                        <CallIcon sx={{ mr: 2 }} fontSize="large" className='cp' />
                     </Link>
                     <Link className='link' to={`/chat?uid=${user.id}`}>
                         <RefreshIcon fontSize="large" className='cp' />

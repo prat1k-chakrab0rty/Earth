@@ -3,7 +3,7 @@ import Message from './Message';
 import SendIcon from '@mui/icons-material/Send';
 import { io } from "socket.io-client";
 import { useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import alert from '../public/message-alert.mp3';
 import { API_URL, SK_URL } from '../public/key';
@@ -22,6 +22,7 @@ import { getURLFromFirebase, uploadToFirebase } from '../public/firebaseUtil';
 
 export default function ChatBody({ user }) {
     const location = useLocation();
+    const navigate = useNavigate();
     const queryParams = new URLSearchParams(location.search);
     const uid = queryParams.get('uid');
 
@@ -63,14 +64,20 @@ export default function ChatBody({ user }) {
         const handleStoppedTyping = () => {
             setBuddyIsTyping(false);
         }
+        const joinVideoCall = (buddyId) => {
+            navigate(`/call?uid=${buddyId}&req=false`)
+        }
+
         socket?.on("incoming_message", handleIncomingMessage);
         socket?.on("showSkeleton", handleIsTyping);
         socket?.on("hideSkeleton", handleStoppedTyping);
+        socket?.on("videoCallAlert", joinVideoCall);
 
         return () => {
             socket?.off("incoming_message");
             socket?.off("showSkeleton");
             socket?.off("hideSkeleton");
+            socket?.off("videoCallAlert");
         };
     }, [socket]);
 

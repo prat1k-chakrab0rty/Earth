@@ -30,8 +30,8 @@ export const socketHandler = (io) => {
         console.log(inMyChatConnections);
         inMyChatConnections.forEach(inMyChatConnection => {
             io.sockets.sockets.get(inMyChatConnection.sid).join("inMyChat");
-          });
-          io.to("inMyChat").emit('refreshChat');
+        });
+        io.to("inMyChat").emit('refreshChat');
 
         //Notify the client that the user has either entered your chat or came online or left your chat
         socket.on('refreshBuddy', (data) => {
@@ -73,15 +73,42 @@ export const socketHandler = (io) => {
             console.log('message:', data.message);
         });
 
+        //Notify client that user wants to video call
+        socket.on('videoCallRequest', (data) => {
+            const connection = connections.find(connection => connection.uid == data.buddyId);
+            if (connection) {
+                // console.log("1",connection);
+                io.to(connection.sid).emit('videoCallAlert', data.myId);
+            }
+        });
+
+        //Notify buddy client that user has accepted the call
+        socket.on('callAccepted', (data) => {
+            const connection = connections.find(connection => connection.uid == data.id);
+            if (connection) {
+                // console.log("1",connection);
+                io.to(connection.sid).emit('callAccepted');
+            }
+        });
+
+        // //Notify buddy client that video call has been closed
+        socket.on('endCall', (data) => {
+            const connection = connections.find(connection => connection.uid == data.buddyId);
+            if (connection) {
+                io.to(connection.sid).emit('endCall', data.buddyId);
+            }
+        });
+
+
         //For video and audio call
         socket.on('offer', (data) => {
             socket.broadcast.emit('offer', data);
         });
-    
+
         socket.on('answer', (data) => {
             socket.broadcast.emit('answer', data);
         });
-    
+
         socket.on('candidate', (data) => {
             socket.broadcast.emit('candidate', data);
         });

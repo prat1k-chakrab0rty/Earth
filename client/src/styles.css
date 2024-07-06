@@ -1,5 +1,6 @@
 body {
-    margin: 0;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .link {
@@ -278,4 +279,14 @@ em-emoji-picker {
 
 .calling-div .user-name{
     margin: 0;
+}
+
+.image-preview-send-image{
+    background-color: #9c27b0 !important; 
+    color: white !important; 
+}
+
+.image-preview-send-image:hover{
+    background-color: white !important; 
+    color: #9c27b0 !important; 
 }

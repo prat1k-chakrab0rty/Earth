@@ -13,6 +13,7 @@ import ringing from "../public/ringing.mp3"
 import axios from 'axios';
 import { API_URL } from '../public/key';
 import { Tooltip } from '@mui/material';
+import { useStopwatch } from 'react-timer-hook';
 
 export default function Call() {
     const localVideoRef = useRef(null);
@@ -34,6 +35,14 @@ export default function Call() {
     const queryParams = new URLSearchParams(location.search);
     const uid = queryParams.get('uid');
     const isReq = queryParams.get('req');
+    const isAudio = queryParams.get('isAudio');
+
+    const {
+        seconds,
+        minutes,
+        start,
+        reset
+    } = useStopwatch({ autoStart: false });
 
     const servers = {
         iceServers: [
@@ -100,6 +109,7 @@ export default function Call() {
             try {
                 callingRef.current.pause();
                 setCallAccpeted(true);
+                start();
             } catch (error) {
                 console.error(error);
             }
@@ -119,6 +129,7 @@ export default function Call() {
                 if (peerConnection) {
                     peerConnection.close();
                 }
+                reset();
                 navigate(`/chat?uid=${uid}`);
             } catch (error) {
                 console.error(error);
@@ -140,7 +151,7 @@ export default function Call() {
 
         const startStream = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: isAudio == 'true' ? false : true, audio: true });
                 localVideoRef.current.srcObject = stream;
                 setLocalStream(stream);
 
@@ -151,7 +162,7 @@ export default function Call() {
 
                 if (isReq == 'true') {
                     callingRef.current.pause();
-                    socket?.emit("videoCallRequest", { myId: userData?.id, buddyId: uid });
+                    socket?.emit("callRequest", { myId: userData?.id, buddyId: uid, isAudio });
                     callingRef.current.currentTime = 0;
                     callingRef.current.play();
                 }
@@ -195,6 +206,7 @@ export default function Call() {
             //handle ringtone and ringing tone off
             ringingRef.current.pause();
             setCallAccpeted(true);
+            start();
             socket?.emit("callAccepted", { id: uid });
         } catch (error) {
             console.error('Error creating offer', error);
@@ -227,22 +239,21 @@ export default function Call() {
         if (peerConnection) {
             peerConnection.close();
         }
+        reset();
         navigate(`/chat?uid=${uid}`);
     };
 
     return (
         <div style={{ position: 'relative', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <SocketInitializer />
-            {/* <video onMouseMove={handleBars} ref={callAccpeted ? remoteVideoRef : localVideoRef} autoPlay muted={!callAccpeted} style={{ height: '100%', objectFit: 'cover', width: '80vw' }}></video>
-            <video onMouseMove={handleBars} style={{ position: 'absolute', width: '300px', top: 25, zIndex: 100, right: 25 }} ref={callAccpeted ? localVideoRef : remoteVideoRef} autoPlay muted={callAccpeted}></video> */}
 
-            {callAccpeted ? (
+            {isAudio == 'true' ? (
                 <>
                     <video
                         onMouseMove={handleBars}
                         ref={remoteVideoRef}
                         autoPlay
-                        style={{ height: '100%', objectFit: 'cover', width: '80vw' }}
+                        style={{ height: '100%', objectFit: 'cover', width: '80vw', backgroundColor: "black" }}
                     ></video>
                     <video
                         onMouseMove={handleBars}
@@ -253,65 +264,128 @@ export default function Call() {
                     ></video>
                 </>
             ) : (
-                <>
-                    <video
-                        onMouseMove={handleBars}
-                        ref={localVideoRef}
-                        autoPlay
-                        muted
-                        style={{ height: '100%', objectFit: 'cover', width: '80vw' }}
-                    ></video>
-                    <video
-                        onMouseMove={handleBars}
-                        ref={remoteVideoRef}
-                        autoPlay
-                        style={{ position: 'absolute', width: '300px', top: 25, zIndex: 100, right: 25 }}
-                    ></video>
-                </>
+                callAccpeted ? (
+                    <>
+                        <video
+                            onMouseMove={handleBars}
+                            ref={remoteVideoRef}
+                            autoPlay
+                            style={{ height: '100%', objectFit: 'cover', width: '80vw' }}
+                        ></video>
+                        <video
+                            onMouseMove={handleBars}
+                            ref={localVideoRef}
+                            autoPlay
+                            muted
+                            style={{ position: 'absolute', width: '300px', top: 25, zIndex: 100, right: 25 }}
+                        ></video>
+                    </>
+                ) : (
+                    <>
+                        <video
+                            onMouseMove={handleBars}
+                            ref={localVideoRef}
+                            autoPlay
+                            muted
+                            style={{ height: '100%', objectFit: 'cover', width: '80vw' }}
+                        ></video>
+                        <video
+                            onMouseMove={handleBars}
+                            ref={remoteVideoRef}
+                            autoPlay
+                            style={{ position: 'absolute', width: '300px', top: 25, zIndex: 100, right: 25 }}
+                        ></video>
+                    </>
+                )
             )}
 
 
-            {(isReq == 'true' || callAccpeted) ? (<>
-                {!callAccpeted && (<div className='calling-div'>
-                    <img className='call-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="avatar" />
-                    <p className='user-name'>{user.name}</p>
-                    <p>Ringing...</p>
-                </div>)}
-                <div onMouseMove={handleBars} className={barClass}>
-                    <audio ref={callingRef} src={ringing} loop></audio>
-                    <Tooltip arrow title="Turn Off Audio">
-                        <MicOffIcon fontSize='large' sx={{ cursor: 'pointer', color: 'lightgray' }} />
-                    </Tooltip>
-                    <Tooltip arrow title="Turf Off Video">
-                        <VideocamOffIcon fontSize='large' sx={{ cursor: 'pointer', color: 'lightgray' }} />
-                    </Tooltip>
-                    <Tooltip arrow title="End Call">
-                        <CallEndIcon onClick={handleEndCall} fontSize='large' sx={{ cursor: 'pointer', color: 'red' }} />
-                    </Tooltip>
-                </div>
-            </>
+            {isAudio == "false" && (
+                (isReq == 'true' || callAccpeted) ? (<>
+                    {!callAccpeted && (<div className='calling-div'>
+                        <img className='call-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="avatar" />
+                        <p className='user-name'>{user.name}</p>
+                        <p>Ringing...</p>
+                    </div>)}
+                    <div onMouseMove={handleBars} className={barClass}>
+                        <audio ref={callingRef} src={ringing} loop></audio>
+                        <Tooltip arrow title="Turn Off Audio">
+                            <MicOffIcon fontSize='large' sx={{ cursor: 'pointer', color: 'lightgray' }} />
+                        </Tooltip>
+                        <Tooltip arrow title="Turf Off Video">
+                            <VideocamOffIcon fontSize='large' sx={{ cursor: 'pointer', color: 'lightgray' }} />
+                        </Tooltip>
+                        <Tooltip arrow title="End Call">
+                            <CallEndIcon onClick={handleEndCall} fontSize='large' sx={{ cursor: 'pointer', color: 'red' }} />
+                        </Tooltip>
+                    </div>
+                </>
+                )
+                    :
+                    (
+                        <>
+                            {!callAccpeted && (<div className='calling-div'>
+                                <img className='call-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="avatar" />
+                                <p className='user-name'>{user.name}</p>
+                                <p>Calling...</p>
+                            </div>)}
+                            <div className='call-bars'>
+                                <audio ref={ringingRef} src={ringTone} loop></audio>
+                                <Tooltip arrow title="Answer Call">
+                                    <CallIcon fontSize='large' sx={{ cursor: 'pointer', color: '#0FFF50' }} onClick={createOffer} />
+                                </Tooltip>
+                                <Tooltip arrow title="End Call">
+                                    <Link className='link' to={`/chat?uid=${uid}`}>
+                                        <CallEndIcon fontSize='large' sx={{ cursor: 'pointer', color: 'red' }} />
+                                    </Link>
+                                </Tooltip>
+                            </div>
+                        </>
+                    )
             )
-                :
-                (
-                    <>
-                        {!callAccpeted && (<div className='calling-div'>
-                            <img className='call-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="avatar" />
-                            <p className='user-name'>{user.name}</p>
-                            <p>Calling...</p>
-                        </div>)}
-                        <div className='call-bars'>
-                            <audio ref={ringingRef} src={ringTone} loop></audio>
-                            <Tooltip arrow title="Answer Call">
-                                <CallIcon fontSize='large' sx={{ cursor: 'pointer', color: '#0FFF50' }} onClick={createOffer} />
-                            </Tooltip>
-                            <Tooltip arrow title="End Call">
-                                <Link className='link' to={`/chat?uid=${uid}`}>
-                                    <CallEndIcon fontSize='large' sx={{ cursor: 'pointer', color: 'red' }} />
-                                </Link>
-                            </Tooltip>
-                        </div>
-                    </>
-                )}
-        </div>
+            }
+
+
+            {isAudio == "true" &&
+                (<>
+                    <div className='calling-div'>
+                        <img className='call-logo' src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.email}`} alt="avatar" />
+                        <p className='user-name'>{user.name}</p>
+                        {!callAccpeted && <p>{isReq == 'true' ? "Ringing..." : "Calling..."}</p>}
+                        {callAccpeted && <><span>{minutes.toString().padStart(2, "0")}</span>:<span>{seconds.toString().padStart(2, "0")}</span></>}
+                    </div>
+                    {
+                        (callAccpeted || isReq == 'true') ?
+                            (
+                                <div className="call-bars">
+                                    <audio ref={callingRef} src={ringing} loop></audio>
+                                    <Tooltip arrow title="Turn Off Audio">
+                                        <MicOffIcon fontSize='large' sx={{ cursor: 'pointer', color: 'lightgray' }} />
+                                    </Tooltip>
+                                    {/* <Tooltip arrow title="Turf Off Video">
+                            <VideocamOffIcon fontSize='large' sx={{ cursor: 'pointer', color: 'lightgray' }} />
+                        </Tooltip> */}
+                                    <Tooltip arrow title="End Call">
+                                        <CallEndIcon onClick={handleEndCall} fontSize='large' sx={{ cursor: 'pointer', color: 'red' }} />
+                                    </Tooltip>
+                                </div>
+                            ) : (
+                                <div className='call-bars'>
+                                    <audio ref={ringingRef} src={ringTone} loop></audio>
+                                    <Tooltip arrow title="Answer Call">
+                                        <CallIcon fontSize='large' sx={{ cursor: 'pointer', color: '#0FFF50' }} onClick={createOffer} />
+                                    </Tooltip>
+                                    <Tooltip arrow title="End Call">
+                                        <Link className='link' to={`/chat?uid=${uid}`}>
+                                            <CallEndIcon fontSize='large' sx={{ cursor: 'pointer', color: 'red' }} />
+                                        </Link>
+                                    </Tooltip>
+                                </div>
+                            )
+                    }
+                </>
+                )
+            }
+        </div >
     );
 }

@@ -12,8 +12,9 @@ import { useEffect } from 'react';
 import { API_URL } from '../public/key';
 import { useSelector } from 'react-redux';
 import CircleIcon from '@mui/icons-material/Circle';
-import VideoCallIcon from '@mui/icons-material/VideoCall';
 import CallIcon from '@mui/icons-material/Call';
+import { Tooltip } from '@mui/material';
+import VideocamIcon from '@mui/icons-material/Videocam';
 
 
 export default function ChatHeader({ user }) {
@@ -52,15 +53,21 @@ export default function ChatHeader({ user }) {
                         {user.isActive && user.inchat != userData.id && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Available</Typography>}
                         {!user.isActive && <Typography sx={{ lineHeight: 1, ml: 3, fontWeight: '500' }}>Offline</Typography>}
                     </Box>
-                    <Link className='link' to={`/call?uid=${user.id}&req=true`}>
-                        <VideoCallIcon sx={{ mr: 2 }} fontSize="large" className='cp' />
-                    </Link>
-                    <Link className='link' to={`/call?uid=${user.id}`}>
-                        <CallIcon sx={{ mr: 2 }} fontSize="large" className='cp' />
-                    </Link>
-                    <Link className='link' to={`/chat?uid=${user.id}`}>
-                        <RefreshIcon fontSize="large" className='cp' />
-                    </Link>
+                    <Tooltip arrow title="Video Call">
+                        <Link className='link' to={`/call?uid=${user.id}&req=true&isAudio=false`}>
+                            <VideocamIcon sx={{ mr: 2 }} fontSize="large" className='cp' />
+                        </Link>
+                    </Tooltip>
+                    <Tooltip arrow title="Audio Call">
+                        <Link className='link' to={`/call?uid=${user.id}&req=true&isAudio=true`}>
+                            <CallIcon sx={{ mr: 2 }} fontSize="large" className='cp' />
+                        </Link>
+                    </Tooltip>
+                    <Tooltip arrow title="Refresh Chat">
+                        <Link className='link' to={`/chat?uid=${user.id}`}>
+                            <RefreshIcon fontSize="large" className='cp' />
+                        </Link>
+                    </Tooltip>
                 </Toolbar>
             </AppBar>
         </Box>

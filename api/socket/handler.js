@@ -74,11 +74,11 @@ export const socketHandler = (io) => {
         });
 
         //Notify client that user wants to video call
-        socket.on('videoCallRequest', (data) => {
+        socket.on('callRequest', (data) => {
             const connection = connections.find(connection => connection.uid == data.buddyId);
             if (connection) {
                 // console.log("1",connection);
-                io.to(connection.sid).emit('videoCallAlert', data.myId);
+                io.to(connection.sid).emit('callAlert', {id:data.myId,isAudio:data.isAudio});
             }
         });
 
